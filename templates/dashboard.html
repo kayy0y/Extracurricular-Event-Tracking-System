@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+
+    <div class="section-header">
+        <h1>Participation Dashboard</h1>
+        <p>Quick overview of student involvement across events.</p>
+    </div>
+
+    <div class="summary-grid">
+
+        <div class="card summary-card">
+            <h2>Total Registrations</h2>
+            <p class="summary-number">
+                {{ summary.total_registrations }}
+            </p>
+        </div>
+
+        <div class="card summary-card">
+            <h2>Unique Students</h2>
+            <p class="summary-number">
+                {{ summary.unique_students }}
+            </p>
+        </div>
+
+        <div class="card summary-card">
+            <h2>Active Events</h2>
+            <p class="summary-number">
+                {{ summary.total_events }}
+            </p>
+        </div>
+
+    </div>
+
+    <div class="layout-two-column">
+
+        <div class="card">
+            <h2>Registrations per Event</h2>
+            <canvas id="events-chart" height="240"></canvas>
+        </div>
+
+        <div class="card">
+            <h2>Events per Student</h2>
+            <canvas id="students-chart" height="240"></canvas>
+        </div>
+
+    </div>
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script type="application/json" id="event-data">
+    {{ event_participation | tojson }}
+</script>
+
+<script type="application/json" id="student-data">
+    {{ student_participation | tojson }}
+</script>
+
+<script>
+    const eventData = JSON.parse(
+        document.getElementById("event-data").textContent
+    );
+
+    const studentData = JSON.parse(
+        document.getElementById("student-data").textContent
+    );
+</script>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+{% endblock %}
