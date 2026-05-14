@@ -48,4 +48,4 @@ The app will automatically create `events.db` (SQLite) and seed a few example ev
 This endpoint is deliberately simple so you can later replace the logic with a real recommendation model.
 
 ## 5. Live Demo
-
+https://extracurricular-event-tracking-system-1.onrender.com
