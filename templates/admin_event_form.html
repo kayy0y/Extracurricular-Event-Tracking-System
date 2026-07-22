@@ -1,53 +1,84 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("recommendation-form");
-  const list = document.getElementById("recommendations-list");
-  const subtitle = document.getElementById("rec-subtitle");
+{% extends "base.html" %}
 
-  if (!form || !list) return;
+{% block content %}
+  <section class="section narrow">
+    <h1>{{ "Edit event" if event else "Create event" }}</h1>
+    <form
+      action="{{ url_for('admin_edit_event', event_id=event.id) if event else url_for('admin_create_event') }}"
+      method="post"
+      class="form card"
+    >
+      <label>
+        Title
+        <input type="text" name="title" value="{{ event.title if event else '' }}" required />
+      </label>
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const emailInput = document.getElementById("rec-email");
-    const email = emailInput.value.trim();
-    if (!email) return;
+      <label>
+        Description
+        <textarea name="description" rows="4" required>{{ event.description if event else "" }}</textarea>
+      </label>
 
-    list.innerHTML = "<p>Loading recommendations…</p>";
-    subtitle.textContent = "Finding events based on your past activity…";
+      <label>
+        Category
+        <input
+          type="text"
+          name="category"
+          value="{{ event.category if event else '' }}"
+          placeholder="Technology, Sports, Arts…"
+        />
+      </label>
 
-    try {
-      const url = `/api/recommendations?email=${encodeURIComponent(email)}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Request failed");
-      const data = await res.json();
+      <label>
+        Location
+        <input type="text" name="location" value="{{ event.location if event else '' }}" required />
+      </label>
 
-      if (!data.events || data.events.length === 0) {
-        list.innerHTML =
-          "<p>No specific matches yet. Try registering for a few events first.</p>";
-        return;
-      }
+      <div class="form-row">
+        <label>
+          Date
+          <input
+            type="date"
+            name="date"
+            value="{{ event.date.isoformat() if event else '' }}"
+            required
+          />
+        </label>
+        <label>
+          Start time
+          <input
+            type="time"
+            name="start_time"
+            value="{{ event.start_time.strftime('%H:%M') if event else '' }}"
+            required
+          />
+        </label>
+        <label>
+          End time
+          <input
+            type="time"
+            name="end_time"
+            value="{{ event.end_time.strftime('%H:%M') if event else '' }}"
+            required
+          />
+        </label>
+      </div>
 
-      subtitle.textContent =
-        data.strategy === "simple_preferences" && data.favorite_category
-          ? `Based on your interest in ${data.favorite_category} events`
-          : "Suggestions for upcoming events";
+      <label>
+        Capacity (optional)
+        <input
+          type="number"
+          name="capacity"
+          min="1"
+          value="{{ event.capacity if event and event.capacity is not none else '' }}"
+        />
+      </label>
 
-      list.innerHTML = "";
-      data.events.forEach((evt) => {
-        const card = document.createElement("a");
-        card.href = `/events/${evt.id}`;
-        card.className = "card event-card";
-        card.innerHTML = `
-          <div class="card-badge">${evt.category || "General"}</div>
-          <h3>${evt.title}</h3>
-          <p class="card-meta"><span>${evt.date}</span></p>
-        `;
-        list.appendChild(card);
-      });
-    } catch (err) {
-      console.error(err);
-      list.innerHTML =
-        "<p>Couldn't load recommendations right now. Please try again later.</p>";
-      subtitle.textContent = "Temporary issue fetching recommendations.";
-    }
-  });
-});
+      <div class="form-actions">
+        <a href="{{ url_for('admin_events') }}" class="link-btn">Cancel</a>
+        <button type="submit" class="primary-btn">
+          {{ "Save changes" if event else "Create event" }}
+        </button>
+      </div>
+    </form>
+  </section>
+{% endblock %}
